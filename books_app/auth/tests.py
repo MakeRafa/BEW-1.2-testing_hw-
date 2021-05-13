@@ -2,7 +2,7 @@ import os
 from unittest import TestCase
 
 from datetime import date
- 
+
 from books_app import app, db, bcrypt
 from books_app.models import Book, Author, User, Audience
 
@@ -41,7 +41,7 @@ def create_user():
 
 class AuthTests(TestCase):
     """Tests for authentication (login & signup)."""
- 
+
     def setUp(self):
         """Executed prior to each test."""
         app.config['TESTING'] = True
@@ -55,22 +55,42 @@ class AuthTests(TestCase):
     def test_signup(self):
         # TODO: Write a test for the signup route. It should:
         # - Make a POST request to /signup, sending a username & password
+        post_data = {
+            'username': 'toni',
+            'password': '1234'
+        }
+        self.app.post('signup', data=post_data)
         # - Check that the user now exists in the database
-        pass
+        user = User.query.filter_by(username='toni').one()
+        self.assertIsNotNone(user)
 
     def test_signup_existing_user(self):
         # TODO: Write a test for the signup route. It should:
         # - Create a user
+        create_user()
         # - Make a POST request to /signup, sending the same username & password
+        post_data = {
+            'username': 'me1',
+            'password': 'password'
+        }
+        # only works if I use this specified username and password
         # - Check that the form is displayed again with an error message
-        pass
+        response = self.app.post('/signup', data=post_data)
+        response_text = response.get_data(as_text=True)
+        self.assertIn("That username is taken. Please choose a different one.", response_text)
 
     def test_login_correct_password(self):
         # TODO: Write a test for the login route. It should:
         # - Create a user
-        # - Make a POST request to /login, sending the created username & password
+        create_user()
+        # - Make a POST request to /signup, sending the same username & password
+        post_data = {
+            'username': 'me1',
+            'password': 'password'
+        }
+        response = self.app.post('/login', data=post_data)
         # - Check that the "login" button is not displayed on the homepage
-        pass
+        response_text = response.get_data(as_text=True)
 
     def test_login_nonexistent_user(self):
         # TODO: Write a test for the login route. It should:
